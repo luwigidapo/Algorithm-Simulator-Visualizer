@@ -11,11 +11,13 @@
 :root {
     --black: #000;
     --white: #fff;
+    --green: #008000;
 }
 
 .dark {
     --black: #fff;
     --white: #000;
+    --green: #00ff00;
 }
 
 header {
@@ -31,7 +33,7 @@ header {
 header .logo {
     position: relative;
     display: inline-flex;
-    color: var(--black);
+    color: var(--green);
     text-decoration: none;
     font-size: 2em;
     font-weight: 700;
@@ -55,7 +57,7 @@ header .logo {
 
 .btns ion-icon {
     font-size: 1.5em;
-    color: var(--black);
+    color: var(--green);
 }
 
 .btns.menuToggle ion-icon {
@@ -117,7 +119,7 @@ header .logo {
     top: 0;
     z-index: 3;
     font-size: 6.8rem;
-    color: cyan;
+    color: var(--green);
     text-shadow: 0 20px 30px rgba(0, 0, 0, 0.6);
 }
 
@@ -125,7 +127,7 @@ header .logo {
     position: relative;
     z-index: 3;
     font-size: 8.5rem;
-    color: cyan;
+    color: var(--green);
     text-shadow: 0 20px 30px rgba(0, 0, 0, 0.6);
 }
 
@@ -157,13 +159,13 @@ header .logo {
     margin: 5px 0;
     font-size: 2.25em;
     text-decoration: none;
-    color: var(--black);
+    color: var(--green);
     padding: 5px 20px;
     border-radius: 40px;
 }
 
 .navigation li a:hover {
-    background: var(--black);
+    background: var(--green);
     color: var(--white);
 }
 
@@ -174,15 +176,12 @@ header .logo {
     z-index: 4;
     font-weight: 500;
     font-size: 1.2em;
-    color: var(--black);
+    color: var(--green);
 }
-
-
 
 .wrapper {
     display: inline-flex;
 }
-
 
 .wrapper .dynamic-txts {
     margin-top: 2px;
@@ -214,7 +213,7 @@ header .logo {
     left: 0;
     height: 100%;
     width: 100%;
-    border-left: 2px solid var(--black);
+    border-left: 2px solid var(--green);
     background: var(--white);
     animation: typing 1.5s steps(7) infinite;
 }
