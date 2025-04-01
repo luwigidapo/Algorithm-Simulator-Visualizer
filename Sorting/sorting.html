@@ -32,8 +32,12 @@
             background-color: #2980b9;
         }
         #swap-count, #compare-count {
-            color: black; /* Changed to black */
+            color: black;
             font-weight: bold;
+        }
+        .bar {
+            font-size: 10px; /* Smaller font for small bars */
+            min-height: 20px; /* Minimum height to ensure visibility */
         }
     </style>
 </head>
@@ -60,7 +64,7 @@
                 <div class="sizespeed">
                     <div class="array_range">
                         <button id="size">Size : <span id="size_value"></span></button>
-                        <input type="range" id="size_slider" min="4" max="100" value="64">
+                        <input type="range" id="size_slider" min="4" max="30" value="15"> <!-- Max changed to 30 -->
                     </div>
                     <div class="array_speed">
                         <button id="speed">Speed : <span id="speed_value"></span></button>
@@ -142,13 +146,15 @@ class BubbleSort {
             const input = document.querySelector('.array-input').value;
             const numbers = input.split(',').map(num => {
                 const parsed = parseInt(num.trim());
-                return isNaN(parsed) ? 20 : Math.max(5, Math.min(500, parsed));
+                return isNaN(parsed) ? 20 : Math.max(1, Math.min(500, parsed)); // Changed min to 1
             });
             
             if (numbers.length > 0) {
-                createCustomArray(numbers);
-                document.getElementById("size_slider").value = numbers.length;
-                document.getElementById("size_value").textContent = numbers.length;
+                // Limit array size to 30
+                const limitedNumbers = numbers.slice(0, 30);
+                createCustomArray(limitedNumbers);
+                document.getElementById("size_slider").value = limitedNumbers.length;
+                document.getElementById("size_value").textContent = limitedNumbers.length;
             }
         });
 
@@ -159,7 +165,7 @@ class BubbleSort {
             const mainBody = document.getElementById("mainbody");
             mainBody.innerHTML = "";
 
-            const barWidth = Math.max(40, Math.min(60, (window.innerWidth * 0.8) / numbers.length));
+            const barWidth = Math.max(20, Math.min(60, (window.innerWidth * 0.8) / numbers.length));
 
             for (let i = 0; i < numbers.length; i++) {
                 const bar = document.createElement("div");
@@ -168,6 +174,12 @@ class BubbleSort {
                 bar.style.width = `${barWidth}px`;
                 bar.style.lineHeight = `${numbers[i]}px`;
                 bar.textContent = numbers[i];
+                
+                // Adjust font size for small bars
+                if (numbers[i] < 20) {
+                    bar.style.fontSize = "8px";
+                    bar.style.paddingTop = `${20 - numbers[i]}px`; // Ensure text is visible
+                }
                 
                 mainBody.appendChild(bar);
             }
