@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="sorting.css">
+    <link rel="stylesheet" href="prism.css">
+    <title>Sorting Visualizer</title>
+    <style>
+        #counters {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 10px 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .counter-box {
+            background-color: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 5px;
+        }
+        
+        .counter-box span:first-child {
+            font-weight: bold;
+        }
+        
+        .counter-box span:last-child {
+            color: #2c3e50;
+        }
+
+        #custom-array-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            gap: 10px;
+        }
+        
+        #custom-array-input {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        #custom-array-btn {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        #custom-array-btn:hover {
+            background-color: #45a049;
+        }
+
+        #control-buttons {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            gap: 10px;
+        }
+
+        #pause-btn, #reset-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #pause-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        #pause-btn:hover {
+            background-color: #e67e22;
+        }
+
+        #reset-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        #reset-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .bar {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            background: cyan;
+            margin: 0 1px;
+            color: black;
+            font-weight: bold;
+            transition: height 0.1s ease;
+        }
+
+        .sizespeed {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 10px 0;
+        }
+
+        .array_range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <section id="fullbody">
+        <header>
+            <h1 id="name"><a href="sorting.html"><span class="big">S</span>ORTING<span></span></a><a
+                    href="sorting.html"><span class="big">VISUALIZER</a></h1>
+            <div id="basic_btn">
+                <div class="gen">
+                    <div class="dropdown">
+                        <button class="select">
+                            <div class="selected">Click any Button</div>
+                        </button>
+                    </div>
+                    <div class="generate_new_array">
+                        <button id="generate">Generate New Array</button>
+                    </div>
+                </div>
+                <div class="sizespeed">
+                    <div class="array_range">
+                        <button id="size">Size : <span id="size_value"></span></button>
+                        <input type="range" id="size_slider" min="4" max="30" value="15">
+                    </div>
+                    <div id="custom-array-container">
+                        <input type="text" id="custom-array-input" placeholder="Enter numbers (max 30)">
+                        <button id="custom-array-btn">Custom Array</button>
+                    </div>
+                    <div class="array_speed">
+                        <button id="speed">Speed : <span id="speed_value"></span></button>
+                        <input type="range" id="speed_slider" min="1" max="10" value="6">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="control-buttons">
+            <button id="pause-btn">Pause</button>
+            <button id="reset-btn">Reset</button>
+        </div>
+
+        <div id="counters">
+            <div class="counter-box">
+                <span>Comparisons:</span>
+                <span id="comparison-count">0</span>
+            </div>
+            <div class="counter-box">
+                <span>Swaps:</span>
+                <span id="swap-count">0</span>
+            </div>
+            <div class="counter-box">
+                <span>Time:</span>
+                <span id="time-count">0s</span>
+            </div>
+        </div>
+
+        <div id="working_area">
+            <div id="mainbody"></div>
+            <div id="buttons">
+                <button class="BubbleSort">Bubble Sort</button>
+                <button class="SelectionSort">Selection Sort</button>
+                <button class="InsertionSort">Insertion Sort</button>
+                <button class="MergeSort">Merge Sort</button>
+                <button class="QuickSort">Quick Sort</button>
+                <a href="../index.html"><ion-icon name="home"></ion-icon></a>
+            </div>
+        </div>
+
+        <footer id="description">
+            <div class="code">
+                <div class="selectedPane">
+                    <span>Code in (Java)</span>
+                </div>
+                <pre id="code_java"><code class="language-java">// Algorithm code will appear here</code></pre>
+            </div>
+            <div class="complexity">
+                <div class="timeComplexity">
+                    <div class="selectedPane">
+                        <span>Time Complexity</span>
+                    </div>
+                    <pre id="time"><code class="language-java">// Time complexity will appear here</code></pre>
+                </div>
+                <div class="spaceComplexity">
+                    <div class="selectedPane">
+                        <span>Space Complexity</span>
+                    </div>
+                    <pre id="space"><code class="language-java">// Space complexity will appear here</code></pre>
+                </div>
+            </div>
+        </footer>
+    </section>
+
+    <script src="sorting.js"></script>
+    <script src="prism.js"></script>
+    <script src="bubble.js"></script>
+    <script src="selection.js"></script>
+    <script src="insertion.js"></script>
+    <script src="merge.js"></script>
+    <script src="quick.js"></script>
+</body>
+</html>
