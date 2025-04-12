@@ -1,5 +1,5 @@
 const output = document.querySelector('#size_value');
-const bars = document.querySelector("#mainbody");
+const bars = document.querySelector("#mainbody"); // This is correct
 const arraySize = document.querySelector('#size_slider');
 const selectText = document.querySelector('.selected');
 output.innerHTML = arraySize.value;
@@ -112,13 +112,18 @@ function createNewArray(arrayVal, customArray = null) {
     }
 
     for (let i = 0; i < array.length; i++) {
+        const barContainer = document.createElement("div");
+        barContainer.className = 'bar-container';
+        barContainer.style.width = `${(96 / array.length)}vw`;
+        
         const bar = document.createElement("div");
         bar.style.height = `${array[i].height}px`;
         bar.className = 'bar';
-        bar.innerHTML = `${array[i].number}`;
-        bar.style.width = `${(96 / array.length)}vw`;
-        bar.style.fontSize = `${Math.min(16, 100/array.length)}px`;
-        bars.appendChild(bar);
+        bar.innerHTML = `<div class="bar-number">${array[i].number}</div>`;
+        bar.style.fontSize = `${Math.min(20, 120/array.length)}px`;
+        
+        barContainer.appendChild(bar);
+        bars.appendChild(barContainer);
     }
 }
 
@@ -136,10 +141,6 @@ newArray.addEventListener("click", function () {
     enableSizeSlider();
     selectText.innerHTML = `New Array Generated`;
     createNewArray(arrayVal);
-    const description = document.querySelector('#description');
-    description.style.display = 'none';
-    const section = document.querySelector('#fullbody');
-    section.style.height = '100vh';
 });
 
 // Button state functions
@@ -161,12 +162,10 @@ function enableSortingBtn() {
 
 function disableSizeSlider() {
     document.querySelector("#size_slider").disabled = true;
-    document.querySelector('#size').disabled = true;
 }
 
 function enableSizeSlider() {
     document.querySelector("#size_slider").disabled = false;
-    document.querySelector('#size').disabled = false;
 }
 
 function disableNewArrayBtn() {
@@ -175,6 +174,38 @@ function disableNewArrayBtn() {
 
 function enableNewArrayBtn() {
     document.querySelector("#generate").disabled = false;
+}
+
+function createComparisonIndicator(index1, index2) {
+    const barContainers = document.querySelectorAll('.bar-container');
+    const element1 = barContainers[index1].querySelector('.bar');
+    const element2 = barContainers[index2].querySelector('.bar');
+    
+    // Remove any existing indicators
+    removeComparisonIndicators();
+    
+    // Create left arrow indicator
+    const leftArrow = document.createElement('div');
+    leftArrow.className = 'comparison-arrow';
+    leftArrow.innerHTML = '⬅';
+    leftArrow.style.left = '50%';
+    leftArrow.style.transform = 'translateX(-50%)';
+    
+    // Create right arrow indicator
+    const rightArrow = document.createElement('div');
+    rightArrow.className = 'comparison-arrow';
+    rightArrow.innerHTML = '➡';
+    rightArrow.style.left = '50%';
+    rightArrow.style.transform = 'translateX(-50%)';
+    
+    // Add indicators to bars
+    element1.appendChild(leftArrow);
+    element2.appendChild(rightArrow);
+}
+
+function removeComparisonIndicators() {
+    const existingArrows = document.querySelectorAll('.comparison-arrow');
+    existingArrows.forEach(arrow => arrow.remove());
 }
 
 async function waitforme(milisec) {
@@ -207,16 +238,20 @@ async function waitforme(milisec) {
     return '';
 }
 
-function swapping(element1, element2) {
+function swapping(index1, index2) {
+    const barContainers = document.querySelectorAll('.bar-container');
+    const element1 = barContainers[index1].querySelector('.bar');
+    const element2 = barContainers[index2].querySelector('.bar');
+    
     // Swap heights
     const tempHeight = element1.style.height;
     element1.style.height = element2.style.height;
     element2.style.height = tempHeight;
     
     // Swap numbers
-    const tempText = element1.textContent;
-    element1.textContent = element2.textContent;
-    element2.textContent = tempText;
+    const tempText = element1.querySelector('.bar-number').textContent;
+    element1.querySelector('.bar-number').textContent = element2.querySelector('.bar-number').textContent;
+    element2.querySelector('.bar-number').textContent = tempText;
     
     incrementSwap();
 }
@@ -279,25 +314,3 @@ document.getElementById('custom-array-btn').addEventListener('click', function()
 
 document.getElementById('pause-btn').addEventListener('click', togglePause);
 document.getElementById('reset-btn').addEventListener('click', resetSorting);
-
-// Dropdown menu functionality
-const menu = document.querySelector('.menu');
-const options = document.querySelectorAll('.menu li');
-const icon = document.querySelector('.icon');
-const select = document.querySelector('.select');
-const selected = document.querySelector('.selected');
-
-menu.classList.toggle('close');
-
-select.addEventListener('click', () => {
-    menu.classList.toggle('close');
-    icon.classList.toggle('icon-rotate');
-});
-
-options.forEach(option => {
-    option.addEventListener('click', () => {
-        selected.innerText = option.innerText;
-        menu.classList.toggle('close');
-        icon.classList.toggle('icon-rotate');
-    });
-});
