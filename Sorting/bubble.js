@@ -5,9 +5,22 @@ var done = new Audio('wrong.mp3');
 const BubbleSortButton = document.querySelector(".BubbleSort");
 BubbleSortButton.addEventListener('click', async function () {
     mouseclick.play();
-    selectText.innerHTML = `Bubble Sort..`;
+    selectText.innerHTML = `Bubble Sort (${sortOrder})..`;
     
-    // Update info panel
+    // Update info panels
+    document.getElementById('algorithm-definition').innerHTML = `
+        <p><strong>Bubble Sort</strong> is a simple sorting algorithm that repeatedly steps through the list, 
+        compares adjacent elements and swaps them if they are in the wrong order.</p>
+        <p><strong>How it works:</strong></p>
+        <ol>
+            <li>Start from the first element</li>
+            <li>Compare with the next element</li>
+            <li>Swap if they are in the wrong order</li>
+            <li>Repeat until no more swaps are needed</li>
+        </ol>
+        <p>The algorithm gets its name because smaller elements "bubble" to the top of the list.</p>
+    `;
+    
     document.getElementById('code_java').innerHTML = 
 `void bubbleSort(int arr[]) {
     int n = arr.length;
@@ -20,9 +33,15 @@ BubbleSortButton.addEventListener('click', async function () {
                 arr[j+1] = temp;
             }
 }`;
-    document.getElementById('time').innerHTML = "O(n²) - Worst and Average Case\nO(n) - Best Case (when already sorted)";
-    document.getElementById('space').innerHTML = "O(1) - In-place sorting";
-    
+
+    document.getElementById('time').innerHTML = 
+`Time Complexity:
+- Worst Case: O(n²) - When array is reverse sorted
+- Average Case: O(n²) - Randomly distributed elements
+- Best Case: O(n) - When array is already sorted
+
+Space Complexity: O(1) - In-place sorting`;
+
     disableSortingBtn();
     disableSizeSlider();
     disableNewArrayBtn();
@@ -63,6 +82,8 @@ async function BubbleSort() {
                 return;
             }
             
+            const num1 = parseInt(barContainers[j].querySelector('.bar-number').textContent);
+            const num2 = parseInt(barContainers[j + 1].querySelector('.bar-number').textContent);
             const bar1 = barContainers[j].querySelector('.bar');
             const bar2 = barContainers[j + 1].querySelector('.bar');
             
@@ -74,7 +95,20 @@ async function BubbleSort() {
             
             incrementComparison();
             
-            if (parseInt(bar1.style.height) > parseInt(bar2.style.height)) {
+            let shouldSwap = false;
+            let comparisonSymbol = '';
+            
+            if (sortOrder === 'ascending') {
+                shouldSwap = num1 > num2;
+                comparisonSymbol = shouldSwap ? '>' : '<=';
+            } else {
+                shouldSwap = num1 < num2;
+                comparisonSymbol = shouldSwap ? '<' : '>=';
+            }
+            
+            updateComparisonDisplay(num1, num2, comparisonSymbol);
+            
+            if (shouldSwap) {
                 await waitforme(delay);
                 if (shouldReset) {
                     resetBarColors();
@@ -90,6 +124,7 @@ async function BubbleSort() {
             
             // Remove indicators after comparison is done
             removeComparisonIndicators();
+            updateComparisonDisplay('', '', '');
         }
         
         if (!shouldReset) {

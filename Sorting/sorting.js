@@ -1,5 +1,5 @@
 const output = document.querySelector('#size_value');
-const bars = document.querySelector("#mainbody"); // This is correct
+const bars = document.querySelector("#mainbody");
 const arraySize = document.querySelector('#size_slider');
 const selectText = document.querySelector('.selected');
 output.innerHTML = arraySize.value;
@@ -13,8 +13,9 @@ let isPaused = false;
 let shouldReset = false;
 let sortingActive = false;
 let resolvePause = null;
+let sortOrder = 'ascending'; // Default sort order
 
-var arrayVal = 64;
+var arrayVal = 15;
 arraySize.addEventListener('input', function () {
     selectText.innerHTML = `Size Changed`;
     output.innerHTML = this.value;
@@ -37,7 +38,7 @@ delayElement.addEventListener('input', function () {
 let array = [];
 
 // Initialize with default array
-createNewArray(64);
+createNewArray(arrayVal);
 
 // Counter functions
 function resetCounters() {
@@ -46,6 +47,7 @@ function resetCounters() {
     document.getElementById('comparison-count').textContent = '0';
     document.getElementById('swap-count').textContent = '0';
     document.getElementById('time-count').textContent = '0s';
+    document.getElementById('comparison-display').textContent = '';
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -75,6 +77,10 @@ function incrementComparison() {
 function incrementSwap() {
     swapCount++;
     document.getElementById('swap-count').textContent = swapCount;
+}
+
+function updateComparisonDisplay(val1, val2, comparison) {
+    document.getElementById('comparison-display').textContent = `${val1} ${comparison} ${val2}`;
 }
 
 function createNewArray(arrayVal, customArray = null) {
@@ -116,12 +122,21 @@ function createNewArray(arrayVal, customArray = null) {
         barContainer.className = 'bar-container';
         barContainer.style.width = `${(96 / array.length)}vw`;
         
+        // Create number label (on top)
+        const numberLabel = document.createElement("div");
+        numberLabel.className = 'bar-number';
+        numberLabel.textContent = array[i].number;
+        
+        // Dynamic font sizing based on array length
+        const fontSize = Math.max(8, 14 - Math.floor(array.length / 10));
+        numberLabel.style.fontSize = `${fontSize}px`;
+        
+        // Create bar
         const bar = document.createElement("div");
         bar.style.height = `${array[i].height}px`;
         bar.className = 'bar';
-        bar.innerHTML = `<div class="bar-number">${array[i].number}</div>`;
-        bar.style.fontSize = `${Math.min(20, 120/array.length)}px`;
         
+        barContainer.appendChild(numberLabel);
         barContainer.appendChild(bar);
         bars.appendChild(barContainer);
     }
@@ -178,34 +193,33 @@ function enableNewArrayBtn() {
 
 function createComparisonIndicator(index1, index2) {
     const barContainers = document.querySelectorAll('.bar-container');
-    const element1 = barContainers[index1].querySelector('.bar');
-    const element2 = barContainers[index2].querySelector('.bar');
+    const element1 = barContainers[index1];
+    const element2 = barContainers[index2];
     
     // Remove any existing indicators
     removeComparisonIndicators();
     
-    // Create left arrow indicator
-    const leftArrow = document.createElement('div');
-    leftArrow.className = 'comparison-arrow';
-    leftArrow.innerHTML = '⬅';
-    leftArrow.style.left = '50%';
-    leftArrow.style.transform = 'translateX(-50%)';
+    // Create single arrow indicator between the bars
+    const arrow = document.createElement('div');
+    arrow.className = 'comparison-arrow';
+    arrow.innerHTML = '⇄';
     
-    // Create right arrow indicator
-    const rightArrow = document.createElement('div');
-    rightArrow.className = 'comparison-arrow';
-    rightArrow.innerHTML = '➡';
-    rightArrow.style.left = '50%';
-    rightArrow.style.transform = 'translateX(-50%)';
+    // Position the arrow between the two bars
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.bottom = '0';
+    container.style.width = '100%';
+    container.style.display = 'flex';
+    container.style.justifyContent = 'center';
+    container.appendChild(arrow);
     
-    // Add indicators to bars
-    element1.appendChild(leftArrow);
-    element2.appendChild(rightArrow);
+    // Add to the first bar's container
+    element1.appendChild(container);
 }
 
 function removeComparisonIndicators() {
     const existingArrows = document.querySelectorAll('.comparison-arrow');
-    existingArrows.forEach(arrow => arrow.remove());
+    existingArrows.forEach(arrow => arrow.parentNode?.remove());
 }
 
 async function waitforme(milisec) {
@@ -240,18 +254,22 @@ async function waitforme(milisec) {
 
 function swapping(index1, index2) {
     const barContainers = document.querySelectorAll('.bar-container');
-    const element1 = barContainers[index1].querySelector('.bar');
-    const element2 = barContainers[index2].querySelector('.bar');
+    const element1 = barContainers[index1];
+    const element2 = barContainers[index2];
     
     // Swap heights
-    const tempHeight = element1.style.height;
-    element1.style.height = element2.style.height;
-    element2.style.height = tempHeight;
+    const bar1 = element1.querySelector('.bar');
+    const bar2 = element2.querySelector('.bar');
+    const tempHeight = bar1.style.height;
+    bar1.style.height = bar2.style.height;
+    bar2.style.height = tempHeight;
     
     // Swap numbers
-    const tempText = element1.querySelector('.bar-number').textContent;
-    element1.querySelector('.bar-number').textContent = element2.querySelector('.bar-number').textContent;
-    element2.querySelector('.bar-number').textContent = tempText;
+    const num1 = element1.querySelector('.bar-number');
+    const num2 = element2.querySelector('.bar-number');
+    const tempText = num1.textContent;
+    num1.textContent = num2.textContent;
+    num2.textContent = tempText;
     
     incrementSwap();
 }
@@ -310,6 +328,69 @@ document.getElementById('custom-array-btn').addEventListener('click', function()
     } else {
         alert('Please enter valid numbers separated by commas.');
     }
+});
+
+// File upload implementation
+document.getElementById('upload-array-btn').addEventListener('click', function() {
+    document.getElementById('array-file-input').click();
+});
+
+document.getElementById('array-file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const content = e.target.result;
+            // Handle both CSV and TXT files
+            const numbers = content.split(/[\s,]+/).map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+            
+            if (numbers.length > 30) {
+                alert('Maximum array size is 30. Only the first 30 numbers will be used.');
+                numbers.length = 30;
+            }
+            
+            if (numbers.length > 0) {
+                createNewArray(numbers.length, numbers);
+                selectText.innerHTML = `Array Loaded from ${file.name}`;
+                enableSortingBtn();
+                enableSizeSlider();
+            } else {
+                alert('No valid numbers found in the file.');
+            }
+        } catch (error) {
+            alert('Error reading file: ' + error.message);
+        }
+    };
+    reader.readAsText(file);
+});
+
+// Maximize button implementation
+document.getElementById('maximize-btn').addEventListener('click', function() {
+    document.getElementById('fullbody').classList.toggle('maximized');
+    this.textContent = document.getElementById('fullbody').classList.contains('maximized') ? 
+        'Minimize' : 'Maximize';
+});
+
+// Sort order buttons
+document.getElementById('ascending-btn').addEventListener('click', function() {
+    sortOrder = 'ascending';
+    this.style.backgroundColor = '#27ae60';
+    document.getElementById('descending-btn').style.backgroundColor = '#e74c3c';
+    selectText.innerHTML = `Sorting Order: Ascending`;
+});
+
+document.getElementById('descending-btn').addEventListener('click', function() {
+    sortOrder = 'descending';
+    this.style.backgroundColor = '#c0392b';
+    document.getElementById('ascending-btn').style.backgroundColor = '#2ecc71';
+    selectText.innerHTML = `Sorting Order: Descending`;
+});
+
+// Data structure navigation button
+document.getElementById('data-structure-btn').addEventListener('click', function() {
+    window.location.href = 'stack.html';
 });
 
 document.getElementById('pause-btn').addEventListener('click', togglePause);

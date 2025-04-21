@@ -1,16 +1,48 @@
-var beep = new Audio('beep3.mp3');
+var beep = new Audio('beep.mp3');
 var mouseclick = new Audio('Mouseclick.mp3');
 var done = new Audio('wrong.mp3');
 
 const SelectionSortButton = document.querySelector(".SelectionSort");
 SelectionSortButton.addEventListener('click', async function () {
     mouseclick.play();
-    selectText.innerHTML = `Selection Sort..`;
-    const description = document.querySelector('#description');
-    description.style.display = 'flex';
-    const section = document.querySelector('#fullbody');
-    section.style.height = '184vh';
+    selectText.innerHTML = `Selection Sort (${sortOrder})..`;
     
+    // Update info panels
+    document.getElementById('algorithm-definition').innerHTML = `
+        <p><strong>Selection Sort</strong> is an in-place comparison sorting algorithm that divides the input list into two parts.</p>
+        <p><strong>How it works:</strong></p>
+        <ol>
+            <li>Find the minimum (or maximum) element in the unsorted portion</li>
+            <li>Swap it with the first unsorted element</li>
+            <li>Repeat the process for the remaining unsorted portion</li>
+        </ol>
+        <p>The algorithm maintains two subarrays: sorted and unsorted.</p>
+    `;
+    
+    document.getElementById('code_java').innerHTML = 
+`void selectionSort(int arr[]) {
+    int n = arr.length;
+    
+    for (int i = 0; i < n-1; i++) {
+        int min_idx = i;
+        for (int j = i+1; j < n; j++)
+            if (arr[j] < arr[min_idx])
+                min_idx = j;
+                
+        int temp = arr[min_idx];
+        arr[min_idx] = arr[i];
+        arr[i] = temp;
+    }
+}`;
+
+    document.getElementById('time').innerHTML = 
+`Time Complexity:
+- Worst Case: O(n²) - All cases
+- Average Case: O(n²) - All cases
+- Best Case: O(n²) - Even when array is sorted
+
+Space Complexity: O(1) - In-place sorting`;
+
     disableSortingBtn();
     disableSizeSlider();
     disableNewArrayBtn();
@@ -35,58 +67,80 @@ SelectionSortButton.addEventListener('click', async function () {
 
 async function SelectionSort() {
     shouldReset = false;
-    const elements = document.querySelectorAll(".bar");
+    const barContainers = document.querySelectorAll('.bar-container');
     
-    for (let i = 0; i < elements.length; i++) {
+    for (let i = 0; i < barContainers.length - 1; i++) {
         if (shouldReset) {
-            resetBarColors(elements);
+            resetBarColors();
+            removeComparisonIndicators();
             return;
         }
         
-        let smallest_element_index = i;
-        elements[i].style.background = 'rgb(250, 5, 54)';
+        let targetIndex = i;
+        barContainers[i].querySelector('.bar').style.background = 'rgb(250, 5, 54)';
         
-        for (let j = i + 1; j < elements.length; j++) {
+        for (let j = i + 1; j < barContainers.length; j++) {
             if (shouldReset) {
-                resetBarColors(elements);
+                resetBarColors();
+                removeComparisonIndicators();
                 return;
             }
             
-            elements[j].style.background = 'rgb(245, 212, 24)';
+            barContainers[j].querySelector('.bar').style.background = 'rgb(245, 212, 24)';
             await waitforme(delay);
             
             incrementComparison();
             
-            if (parseInt(elements[j].textContent) < parseInt(elements[smallest_element_index].textContent)) {
-                if (smallest_element_index !== i) {
-                    elements[smallest_element_index].style.background = 'cyan';
+            let shouldUpdateTarget = false;
+            if (sortOrder === 'ascending') {
+                shouldUpdateTarget = parseInt(barContainers[j].querySelector('.bar-number').textContent) < 
+                                    parseInt(barContainers[targetIndex].querySelector('.bar-number').textContent);
+                updateComparisonDisplay(
+                    parseInt(barContainers[j].querySelector('.bar-number').textContent),
+                    parseInt(barContainers[targetIndex].querySelector('.bar-number').textContent),
+                    '<'
+                );
+            } else {
+                shouldUpdateTarget = parseInt(barContainers[j].querySelector('.bar-number').textContent) > 
+                                    parseInt(barContainers[targetIndex].querySelector('.bar-number').textContent);
+                updateComparisonDisplay(
+                    parseInt(barContainers[j].querySelector('.bar-number').textContent),
+                    parseInt(barContainers[targetIndex].querySelector('.bar-number').textContent),
+                    '>'
+                );
+            }
+            
+            if (shouldUpdateTarget) {
+                if (targetIndex !== i) {
+                    barContainers[targetIndex].querySelector('.bar').style.background = 'cyan';
                 }
-                smallest_element_index = j;
+                targetIndex = j;
+            } else {
+                barContainers[j].querySelector('.bar').style.background = 'cyan';
             }
-            else {
-                elements[j].style.background = 'cyan';
-            }
+            updateComparisonDisplay('', '', '');
         }
         
         if (!shouldReset) {
-            if (smallest_element_index !== i) {
+            if (targetIndex !== i) {
                 beep.play();
                 await waitforme(delay);
-                swapping(elements[smallest_element_index], elements[i]);
+                swapping(targetIndex, i);
                 incrementSwap();
             }
-            elements[smallest_element_index].style.background = 'cyan';
-            elements[i].style.background = 'rgb(0,255,0)';
+            barContainers[targetIndex].querySelector('.bar').style.background = 'cyan';
+            barContainers[i].querySelector('.bar').style.background = 'rgb(0,255,0)';
         }
     }
     
     if (!shouldReset) {
-        elements.forEach(el => el.style.background = 'rgb(0,255,0)');
+        barContainers[barContainers.length - 1].querySelector('.bar').style.background = 'rgb(0,255,0)';
     }
 }
 
-function resetBarColors(elements) {
-    elements.forEach(el => {
+function resetBarColors() {
+    const bars = document.querySelectorAll('.bar');
+    bars.forEach(el => {
         el.style.background = '';
     });
 }
